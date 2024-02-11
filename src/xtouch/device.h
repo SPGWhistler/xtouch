@@ -176,6 +176,14 @@ void xtouch_device_onNozzleTargetCommand(lv_msg_t *m)
     xtouch_device_pushall();
 }
 
+void xtouch_device_onChamberTargetCommand(lv_msg_t *m)
+{
+    bambuStatus.chamber_target_temper = controlMode.target_chamber_temper;
+    //TODO: Get gcode for chamber temp?
+    //xtouch_device_gcode_line("M104 S" + String(controlMode.target_chamber_temper) + "\n");
+    //xtouch_device_pushall();
+}
+
 void xtouch_device_onPartSpeedCommand(lv_msg_t *m)
 {
     xtouch_device_gcode_line("M106 P1 S" + String(bambuStatus.cooling_fan_speed) + " \n");

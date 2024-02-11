@@ -26,6 +26,7 @@ void ui_temperatureComponent_hide_keypad()
     lv_obj_t *fans = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTFANS);
     lv_obj_t *bed = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTBED);
     lv_obj_t *nozzle = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTNOZZLE);
+    lv_obj_t *chamberTemp = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTCHAMBER);
     lv_obj_t *part = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTFANS_TEMPERATURECOMPONENTPARTFAN);
     lv_obj_t *aux = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTFANS_TEMPERATURECOMPONENTAUXFAN);
     lv_obj_t *chamber = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTFANS_TEMPERATURECOMPONENTCHAMBERFAN);
@@ -39,12 +40,14 @@ void ui_temperatureComponent_hide_keypad()
 
     lv_obj_clear_state(bed, LV_STATE_CHECKED);
     lv_obj_clear_state(nozzle, LV_STATE_CHECKED);
+    lv_obj_clear_state(chamberTemp, LV_STATE_CHECKED);
     lv_obj_clear_state(part, LV_STATE_CHECKED);
     lv_obj_clear_state(aux, LV_STATE_CHECKED);
     lv_obj_clear_state(chamber, LV_STATE_CHECKED);
 
     lv_obj_clear_state(bed, LV_STATE_DISABLED);
     lv_obj_clear_state(nozzle, LV_STATE_DISABLED);
+    lv_obj_clear_state(chamberTemp, LV_STATE_DISABLED);
     lv_obj_clear_state(part, LV_STATE_DISABLED);
     lv_obj_clear_state(aux, LV_STATE_DISABLED);
     lv_obj_clear_state(chamber, LV_STATE_DISABLED);
@@ -70,8 +73,10 @@ void ui_temperatureComponent_show_keypad(int type, int index)
         lv_obj_add_flag(fans, LV_OBJ_FLAG_HIDDEN);
         lv_obj_t *bedInput = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTBED_MAINSCREENBEDTEMPINPUT);
         lv_obj_t *nozzleInput = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTNOZZLE_MAINSCREENNOZZLETEMPINPUT);
+        lv_obj_t *chamberInput = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTCHAMBER_MAINSCREENCHAMBERTEMPINPUT);
         lv_obj_t *bed = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTBED);
         lv_obj_t *nozzle = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTNOZZLE);
+        lv_obj_t *chamber = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTCHAMBER);
         ui_temperatureComponent_input_target = index == 0 ? bedInput : nozzleInput;
         lv_obj_add_state(index == 0 ? nozzle : bed, LV_STATE_DISABLED);
     }
@@ -136,6 +141,17 @@ void ui_event_comp_temperatureComponent_temperatureComponentNozzle(lv_event_t *e
     if (event_code == LV_EVENT_CLICKED)
     {
         ui_temperatureComponent_show_keypad(0, 1);
+        lv_obj_add_state(target, LV_STATE_CHECKED);
+    }
+}
+void ui_event_comp_temperatureComponent_temperatureComponentChamber(lv_event_t *e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t *target = lv_event_get_target(e);
+    lv_obj_t **comp_temperatureComponent = lv_event_get_user_data(e);
+    if (event_code == LV_EVENT_CLICKED)
+    {
+        ui_temperatureComponent_show_keypad(0, 0);
         lv_obj_add_state(target, LV_STATE_CHECKED);
     }
 }
@@ -212,6 +228,7 @@ void ui_event_comp_temperatureComponent_numpadKeyOk(lv_event_t *e)
     {
         lv_obj_t *bed = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTBED_MAINSCREENBEDTEMPINPUT);
         lv_obj_t *nozzle = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTNOZZLE_MAINSCREENNOZZLETEMPINPUT);
+        lv_obj_t *chamberTemp = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTCHAMBER_MAINSCREENCHAMBERTEMPINPUT);
         lv_obj_t *part = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTFANS_TEMPERATURECOMPONENTPARTFAN_TEMPERATURECOMPONENTPARTFANINPUT);
         lv_obj_t *aux = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTFANS_TEMPERATURECOMPONENTAUXFAN_TEMPERATURECOMPONENTAUXFANINPUT);
         lv_obj_t *chamber = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTFANS_TEMPERATURECOMPONENTCHAMBERFAN_TEMPERATURECOMPONENTCHAMBERFANINPUT);
@@ -228,6 +245,13 @@ void ui_event_comp_temperatureComponent_numpadKeyOk(lv_event_t *e)
             controlMode.target_nozzle_temper = atoi(data);
             lv_msg_send(XTOUCH_COMMAND_NOZZLE_TARGET_TEMP, NULL);
             lv_textarea_set_text(nozzle, "");
+        }
+        else if (ui_temperatureComponent_input_target == chamberTemp)
+        {
+            const char *data = lv_textarea_get_text(chamberTemp);
+            controlMode.target_chamber_temper = atoi(data);
+            lv_msg_send(XTOUCH_COMMAND_CHAMBER_TARGET_TEMP, NULL);
+            lv_textarea_set_text(chamberTemp, "");
         }
         else if (ui_temperatureComponent_input_target == part)
         {
@@ -280,11 +304,15 @@ void ui_temperatureComponent_onXtouchTempTarget(lv_event_t *e)
     lv_obj_t *inputTarget;
     if (target == ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTBED_MAINSCREENBEDTEMPICON))
     {
-        inputTarget = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTBED_MAINSCREENBEDTEMPINPUT);
+      inputTarget = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTBED_MAINSCREENBEDTEMPINPUT);
+    }
+    else if (target == ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTNOZZLE_MAINSCREENNOZZLETEMPICON))
+    {
+      inputTarget = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTNOZZLE_MAINSCREENNOZZLETEMPINPUT);
     }
     else
     {
-        inputTarget = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTNOZZLE_MAINSCREENNOZZLETEMPINPUT);
+      inputTarget = ui_comp_get_child(ui_temperatureComponent, UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTCHAMBER_MAINSCREENCHAMBERTEMPINPUT);
     }
 
     char value[3];
@@ -524,6 +552,79 @@ lv_obj_t *ui_temperatureComponent_create(lv_obj_t *comp_parent)
     lv_obj_set_style_pad_right(cui_mainScreenBedTempInput, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_top(cui_mainScreenBedTempInput, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_bottom(cui_mainScreenBedTempInput, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t *cui_temperatureComponentChamber;
+    cui_temperatureComponentChamber = lv_obj_create(cui_temperatureComponentTemps);
+    lv_obj_set_width(cui_temperatureComponentChamber, lv_pct(100));
+    lv_obj_set_flex_grow(cui_temperatureComponentChamber, 2);
+    lv_obj_set_x(cui_temperatureComponentChamber, 386);
+    lv_obj_set_y(cui_temperatureComponentChamber, 178);
+    lv_obj_set_flex_flow(cui_temperatureComponentChamber, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(cui_temperatureComponentChamber, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_clear_flag(cui_temperatureComponentChamber, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+    lv_obj_set_scrollbar_mode(cui_temperatureComponentChamber, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_set_style_bg_color(cui_temperatureComponentChamber, lv_color_hex(0x555555), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(cui_temperatureComponentChamber, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(cui_temperatureComponentChamber, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(cui_temperatureComponentChamber, 8, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(cui_temperatureComponentChamber, 8, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(cui_temperatureComponentChamber, 8, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(cui_temperatureComponentChamber, 8, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_row(cui_temperatureComponentChamber, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_column(cui_temperatureComponentChamber, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(cui_temperatureComponentChamber, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(cui_temperatureComponentChamber, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(cui_temperatureComponentChamber, lv_color_hex(0x2aff00), LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_set_style_border_opa(cui_temperatureComponentChamber, 255, LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_set_style_border_width(cui_temperatureComponentChamber, 2, LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_set_style_bg_color(cui_temperatureComponentChamber, lv_color_hex(0x2aff00), LV_PART_MAIN | LV_STATE_PRESSED);
+    lv_obj_set_style_bg_opa(cui_temperatureComponentChamber, 255, LV_PART_MAIN | LV_STATE_PRESSED);
+
+    lv_obj_set_style_pad_row(cui_temperatureComponentChamber, 0, LV_PART_SCROLLBAR | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_column(cui_temperatureComponentChamber, 8, LV_PART_SCROLLBAR | LV_STATE_DEFAULT);
+
+    lv_obj_t *cui_mainScreenChamberTempIcon;
+    cui_mainScreenChamberTempIcon = lv_label_create(cui_temperatureComponentChamber);
+    lv_obj_set_width(cui_mainScreenChamberTempIcon, LV_SIZE_CONTENT);  /// 1
+    lv_obj_set_height(cui_mainScreenChamberTempIcon, LV_SIZE_CONTENT); /// 1
+    lv_obj_set_align(cui_mainScreenChamberTempIcon, LV_ALIGN_CENTER);
+    lv_label_set_text(cui_mainScreenChamberTempIcon, "g");
+    lv_obj_clear_flag(cui_mainScreenChamberTempIcon, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+    lv_obj_set_scrollbar_mode(cui_mainScreenChamberTempIcon, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_set_style_text_color(cui_mainScreenChamberTempIcon, lv_color_hex(0xCCCCCC), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(cui_mainScreenChamberTempIcon, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(cui_mainScreenChamberTempIcon, lv_icon_font_big, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t *cui_mainScreenChamberTempValue;
+    cui_mainScreenChamberTempValue = lv_label_create(cui_temperatureComponentChamber);
+    lv_obj_set_width(cui_mainScreenChamberTempValue, LV_SIZE_CONTENT);  /// 1
+    lv_obj_set_height(cui_mainScreenChamberTempValue, LV_SIZE_CONTENT); /// 1
+    lv_obj_set_align(cui_mainScreenChamberTempValue, LV_ALIGN_CENTER);
+    lv_label_set_text(cui_mainScreenChamberTempValue, "35");
+    lv_obj_clear_flag(cui_mainScreenChamberTempValue, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+    lv_obj_set_scrollbar_mode(cui_mainScreenChamberTempValue, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_set_style_text_font(cui_mainScreenChamberTempValue, lv_font_big, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t *cui_mainScreenChamberTempInput;
+    cui_mainScreenChamberTempInput = lv_textarea_create(cui_temperatureComponentChamber);
+    lv_obj_set_width(cui_mainScreenChamberTempInput, lv_pct(100));
+    lv_obj_set_height(cui_mainScreenChamberTempInput, LV_SIZE_CONTENT); /// 70
+    lv_textarea_set_max_length(cui_mainScreenChamberTempInput, 3);
+    lv_textarea_set_placeholder_text(cui_mainScreenChamberTempInput, "0");
+    lv_textarea_set_one_line(cui_mainScreenChamberTempInput, true);
+    lv_obj_clear_flag(cui_mainScreenChamberTempInput, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+    lv_obj_set_scrollbar_mode(cui_mainScreenChamberTempInput, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_set_style_text_color(cui_mainScreenChamberTempInput, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(cui_mainScreenChamberTempInput, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(cui_mainScreenChamberTempInput, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(cui_mainScreenChamberTempInput, lv_font_big, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(cui_mainScreenChamberTempInput, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(cui_mainScreenChamberTempInput, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(cui_mainScreenChamberTempInput, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(cui_mainScreenChamberTempInput, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(cui_mainScreenChamberTempInput, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(cui_mainScreenChamberTempInput, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(cui_mainScreenChamberTempInput, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_t *cui_temperatureComponentFans;
     cui_temperatureComponentFans = lv_obj_create(cui_temperatureComponent);
@@ -1102,6 +1203,10 @@ lv_obj_t *ui_temperatureComponent_create(lv_obj_t *comp_parent)
     children[UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTBED_MAINSCREENBEDTEMPICON] = cui_mainScreenBedTempIcon;
     children[UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTBED_MAINSCREENBEDTEMPVALUE] = cui_mainScreenBedTempValue;
     children[UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTBED_MAINSCREENBEDTEMPINPUT] = cui_mainScreenBedTempInput;
+    children[UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTCHAMBER] = cui_temperatureComponentChamber;
+    children[UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTCHAMBER_MAINSCREENCHAMBERTEMPICON] = cui_mainScreenChamberTempIcon;
+    children[UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTCHAMBER_MAINSCREENCHAMBERTEMPVALUE] = cui_mainScreenChamberTempValue;
+    children[UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTTEMPS_TEMPERATURECOMPONENTCHAMBER_MAINSCREENCHAMBERTEMPINPUT] = cui_mainScreenChamberTempInput;
     children[UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTFANS] = cui_temperatureComponentFans;
     children[UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTFANS_TEMPERATURECOMPONENTPARTFAN] = cui_temperatureComponentPartFan;
     children[UI_COMP_TEMPERATURECOMPONENT_TEMPERATURECOMPONENTFANS_TEMPERATURECOMPONENTPARTFAN_TEMPERATURECOMPONENTPARTFANICON] = cui_temperatureComponentPartFanIcon;
@@ -1136,6 +1241,7 @@ lv_obj_t *ui_temperatureComponent_create(lv_obj_t *comp_parent)
     lv_obj_add_event_cb(cui_temperatureComponent, del_component_child_event_cb, LV_EVENT_DELETE, children);
     lv_obj_add_event_cb(cui_temperatureComponentBed, ui_event_comp_temperatureComponent_temperatureComponentBed, LV_EVENT_ALL, children);
     lv_obj_add_event_cb(cui_temperatureComponentNozzle, ui_event_comp_temperatureComponent_temperatureComponentNozzle, LV_EVENT_ALL, children);
+    lv_obj_add_event_cb(cui_temperatureComponentChamber, ui_event_comp_temperatureComponent_temperatureComponentChamber, LV_EVENT_ALL, children);
     lv_obj_add_event_cb(cui_temperatureComponentPartFan, ui_event_comp_temperatureComponent_temperatureComponentPartFan, LV_EVENT_ALL, children);
     lv_obj_add_event_cb(cui_temperatureComponentAuxFan, ui_event_comp_temperatureComponent_temperatureComponentAuxFan, LV_EVENT_ALL, children);
     lv_obj_add_event_cb(cui_temperatureComponentChamberFan, ui_event_comp_temperatureComponent_temperatureComponentChamberFan, LV_EVENT_ALL, children);
@@ -1163,6 +1269,12 @@ lv_obj_t *ui_temperatureComponent_create(lv_obj_t *comp_parent)
 
     lv_obj_add_event_cb(cui_mainScreenNozzleTempIcon, ui_temperatureComponent_onXtouchTempTarget, LV_EVENT_MSG_RECEIVED, NULL);
     lv_msg_subsribe_obj(XTOUCH_ON_NOZZLE_TARGET_TEMP, cui_mainScreenNozzleTempIcon, NULL);
+
+    lv_obj_add_event_cb(cui_mainScreenChamberTempValue, ui_temperatureComponent_onXtouchTemp, LV_EVENT_MSG_RECEIVED, NULL);
+    lv_msg_subsribe_obj(XTOUCH_ON_CHAMBER_TEMP, cui_mainScreenChamberTempValue, NULL);
+
+    lv_obj_add_event_cb(cui_mainScreenChamberTempIcon, ui_temperatureComponent_onXtouchTempTarget, LV_EVENT_MSG_RECEIVED, NULL);
+    lv_msg_subsribe_obj(XTOUCH_ON_CHAMBER_TARGET_TEMP, cui_mainScreenChamberTempIcon, NULL);
 
     lv_obj_add_event_cb(cui_temperatureComponentPartFanInput, ui_temperatureComponent_onXtouchPartFanSpeed, LV_EVENT_MSG_RECEIVED, NULL);
     lv_msg_subsribe_obj(XTOUCH_ON_PART_FAN_SPEED, cui_temperatureComponentPartFanInput, NULL);

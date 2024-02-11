@@ -86,6 +86,7 @@ extern "C"
         double nozzle_temper;
         double nozzle_target_temper;
         double chamber_temper;
+        double chamber_target_temper;
         int wifi_signal;
         int cooling_fan_speed;
         int big_fan1_speed;
@@ -136,6 +137,7 @@ extern "C"
         int axis;
         int target_bed_temper;
         int target_nozzle_temper;
+        int target_chamber_temper;
     } XtouchControlMode;
 
     XtouchControlMode controlMode;

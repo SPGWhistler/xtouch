@@ -17,7 +17,7 @@ int xtouch_ssdp_search_count = 0;
 
 JsonDocument xtouch_ssdp_load_printer()
 {
-    return xtouch_filesystem_readJson(SD, xtouch_paths_printers, false);
+  return xtouch_filesystem_readJson(SD, xtouch_paths_printers, false);
 }
 
 JsonDocument xtouch_ssdp_load_printerIPs()

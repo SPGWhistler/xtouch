@@ -70,6 +70,10 @@ void onTemperatureBed(const char *value)
     lv_msg_send(XTOUCH_COMMAND_BED_TARGET_TEMP, value);
 }
 void onTemperatureNozzle(int32_t value) { lv_msg_send(XTOUCH_COMMAND_NOZZLE_TARGET_TEMP, &value); }
+void onTemperatureChamber(int32_t value) { 
+  LV_LOG_USER("onTemperatureChamber: %s", value);
+  lv_msg_send(XTOUCH_COMMAND_CHAMBER_TARGET_TEMP, &value);
+}
 void onTemperaturePart(lv_event_t *e) { lv_msg_send(XTOUCH_CONTROL_INC_SWITCH, NULL); }
 void onTemperatureAux(lv_event_t *e) { lv_msg_send(XTOUCH_CONTROL_INC_SWITCH, NULL); }
 void onTemperatureKeypad(lv_event_t *e) { lv_msg_send(XTOUCH_CONTROL_INC_SWITCH, NULL); }

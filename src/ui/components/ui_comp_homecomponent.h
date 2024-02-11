@@ -59,10 +59,12 @@ extern "C"
     void ui_event_comp_homeComponent_mainScreenLightButton(lv_event_t *e);
     void ui_event_comp_homeComponent_mainScreenBedTemp(lv_event_t *e);
     void ui_event_comp_homeComponent_mainScreenNozzleTemp(lv_event_t *e);
+    void ui_event_comp_homeComponent_mainScreenChamberTemp(lv_event_t *e);
 
     void onXTouchLightMessage(lv_event_t *e);
     void onXTouchBedTemp(lv_event_t *e);
     void onXTouchBedTempTarget(lv_event_t *e);
+    void onXTouchChamberTemp(lv_event_t *e);
 
 #ifdef __cplusplus
 } /*extern "C"*/

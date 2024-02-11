@@ -32,6 +32,7 @@ void xtouch_chamber_requestTemperatures(lv_timer_t *timer)
     float temperatureC = xtouch_chamber_sensors.getTempCByIndex(0) + xTouchConfig.xTouchChamberSensorReadingDiff;
     float temperatureF = xtouch_chamber_sensors.getTempFByIndex(0) + xTouchConfig.xTouchChamberSensorReadingDiff;
     ConsoleInfo.println("Temeratures: " + String(temperatureC) + "C" + " " + String(temperatureF) + "F");
+    bambuStatus.chamber_temper = temperatureC;
     if (temperatureF >= 70.5) {
       //Too hot, Heat off, Fan on, Blue
       digitalWrite(XTOUCH_LED_RED_PIN, HIGH); 
@@ -39,6 +40,8 @@ void xtouch_chamber_requestTemperatures(lv_timer_t *timer)
       digitalWrite(XTOUCH_LED_BLUE_PIN, LOW);
       digitalWrite(XTOUCH_CHAMBER_HEAT_PIN, LOW);
       //Send mqtt to speed up fan
+      xtouch_mqtt_sendMsg(XTOUCH_ON_CHAMBER_TEMP, temperatureC);
+      xtouch_mqtt_sendMsg(XTOUCH_ON_CHAMBER_TARGET_TEMP, 0);
     } else if (temperatureF >= 70) {
       //Perfect, do nothing, Green
       digitalWrite(XTOUCH_LED_RED_PIN, HIGH); 
@@ -46,6 +49,8 @@ void xtouch_chamber_requestTemperatures(lv_timer_t *timer)
       digitalWrite(XTOUCH_LED_BLUE_PIN, HIGH);
       digitalWrite(XTOUCH_CHAMBER_HEAT_PIN, LOW);
       //Send mqtt to set fan back to original value
+      xtouch_mqtt_sendMsg(XTOUCH_ON_CHAMBER_TEMP, temperatureC);
+      xtouch_mqtt_sendMsg(XTOUCH_ON_CHAMBER_TARGET_TEMP, 0);
     } else {
       //Too cold, heat on, Red
       digitalWrite(XTOUCH_LED_RED_PIN, LOW); 
@@ -53,9 +58,9 @@ void xtouch_chamber_requestTemperatures(lv_timer_t *timer)
       digitalWrite(XTOUCH_LED_BLUE_PIN, HIGH);
       digitalWrite(XTOUCH_CHAMBER_HEAT_PIN, HIGH);
       //Send mqtt to set fan back to original value
+      xtouch_mqtt_sendMsg(XTOUCH_ON_CHAMBER_TEMP, temperatureC);
+      xtouch_mqtt_sendMsg(XTOUCH_ON_CHAMBER_TARGET_TEMP, temperatureC);
     }
-    bambuStatus.chamber_temper = temperatureC;
-    xtouch_mqtt_sendMsg(XTOUCH_ON_CHAMBER_TEMP, temperatureC);
     xtouch_chamber_sensors.requestTemperatures();
     xtouch_chamber_timer_create();
 }
@@ -76,6 +81,11 @@ void xtouch_chamber_timer_start()
         xtouch_chamber_sensors.begin();
         xtouch_chamber_sensors.setWaitForConversion(false);
         xtouch_chamber_started = true;
+
+        //bambuStatus.chamber_target_temper = 20;
+        xtouch_mqtt_sendMsg(XTOUCH_COMMAND_CHAMBER_TARGET_TEMP, 20);
+        //controlMode.target_chamber_temper = 20;
+        //lv_msg_send(XTOUCH_COMMAND_CHAMBER_TARGET_TEMP, NULL);
     }
     xtouch_chamber_timer_create();
 }

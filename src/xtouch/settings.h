@@ -51,7 +51,8 @@ void xtouch_settings_loadSettings()
     xTouchConfig.xTouchWakeOnPrint = settings.containsKey("wop") ? settings["wop"].as<bool>() : true;
     xTouchConfig.xTouchChamberSensorReadingDiff = settings.containsKey("chamberTempDiff") ? settings["chamberTempDiff"].as<int8_t>() : 0;
 
-    if (xtouch_ssdp_is_paired())
+    //if (xtouch_ssdp_is_paired())
+    if (false)
     {
         xtouch_ssdp_load_pair();
         JsonObject currentPrinterSettings = xtouch_ssdp_load_printer()[xTouchConfig.xTouchSerialNumber]["settings"];

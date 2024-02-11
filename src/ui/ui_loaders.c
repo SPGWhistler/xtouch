@@ -18,16 +18,19 @@ void fillScreenData(int screen)
         sendMqttMsg(XTOUCH_ON_BED_TARGET_TEMP, bambuStatus.bed_target_temper);
         sendMqttMsg(XTOUCH_ON_NOZZLE_TEMP, bambuStatus.nozzle_temper);
         sendMqttMsg(XTOUCH_ON_NOZZLE_TARGET_TEMP, bambuStatus.nozzle_target_temper);
+        sendMqttMsg(XTOUCH_ON_CHAMBER_TEMP, bambuStatus.chamber_temper);
+        sendMqttMsg(XTOUCH_ON_CHAMBER_TARGET_TEMP, bambuStatus.chamber_target_temper);
         sendMqttMsg(XTOUCH_ON_LIGHT_REPORT, bambuStatus.chamberLed);
         sendMqttMsg(XTOUCH_ON_AMS, bambuStatus.ams);
         sendMqttMsg(XTOUCH_ON_PRINT_STATUS, 0);
-        sendMqttMsg(XTOUCH_ON_CHAMBER_TEMP, bambuStatus.chamber_temper);
         break;
     case 1:
         sendMqttMsg(XTOUCH_ON_BED_TEMP, bambuStatus.bed_temper);
         sendMqttMsg(XTOUCH_ON_BED_TARGET_TEMP, bambuStatus.bed_target_temper);
         sendMqttMsg(XTOUCH_ON_NOZZLE_TEMP, bambuStatus.nozzle_temper);
         sendMqttMsg(XTOUCH_ON_NOZZLE_TARGET_TEMP, bambuStatus.nozzle_target_temper);
+        sendMqttMsg(XTOUCH_ON_CHAMBER_TEMP, bambuStatus.chamber_temper);
+        sendMqttMsg(XTOUCH_ON_CHAMBER_TARGET_TEMP, bambuStatus.chamber_target_temper);
         sendMqttMsg(XTOUCH_ON_PART_FAN_SPEED, bambuStatus.cooling_fan_speed);
         sendMqttMsg(XTOUCH_ON_PART_AUX_SPEED, bambuStatus.big_fan1_speed);
         sendMqttMsg(XTOUCH_ON_PART_CHAMBER_SPEED, bambuStatus.big_fan2_speed);

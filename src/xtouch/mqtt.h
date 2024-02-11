@@ -276,11 +276,13 @@ void xtouch_mqtt_processPushStatus(JsonDocument &incomingJson)
             xtouch_mqtt_sendMsg(XTOUCH_ON_NOZZLE_TARGET_TEMP, bambuStatus.nozzle_target_temper);
         }
 
+        /*
         if (incomingJson["print"].containsKey("chamber_temper"))
         {
             bambuStatus.chamber_temper = incomingJson["print"]["chamber_temper"].as<double>();
             xtouch_mqtt_sendMsg(XTOUCH_ON_CHAMBER_TEMP, bambuStatus.chamber_temper);
         }
+        */
 
         // link_th
         // link_ams
@@ -843,6 +845,7 @@ void xtouch_mqtt_setup()
     lv_msg_subscribe(XTOUCH_COMMAND_DOWN, (lv_msg_subscribe_cb_t)xtouch_device_onDownCommand, NULL);
     lv_msg_subscribe(XTOUCH_COMMAND_BED_TARGET_TEMP, (lv_msg_subscribe_cb_t)xtouch_device_onBedTargetTempCommand, NULL);
     lv_msg_subscribe(XTOUCH_COMMAND_NOZZLE_TARGET_TEMP, (lv_msg_subscribe_cb_t)xtouch_device_onNozzleTargetCommand, NULL);
+    lv_msg_subscribe(XTOUCH_COMMAND_CHAMBER_TARGET_TEMP, (lv_msg_subscribe_cb_t)xtouch_device_onChamberTargetCommand, NULL);
     lv_msg_subscribe(XTOUCH_COMMAND_PART_FAN_SPEED, (lv_msg_subscribe_cb_t)xtouch_device_onPartSpeedCommand, NULL);
     lv_msg_subscribe(XTOUCH_COMMAND_AUX_FAN_SPEED, (lv_msg_subscribe_cb_t)xtouch_device_onAuxSpeedCommand, NULL);
     lv_msg_subscribe(XTOUCH_COMMAND_CHAMBER_FAN_SPEED, (lv_msg_subscribe_cb_t)xtouch_device_onChamberSpeedCommand, NULL);

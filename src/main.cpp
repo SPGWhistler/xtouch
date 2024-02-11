@@ -59,22 +59,25 @@ void setup()
 
   xtouch_touch_setup();
 
-  while (!xtouch_wifi_setup())
-    ;
+  //while (!xtouch_wifi_setup())
+    //;
 
   xtouch_chamber_timer_start();
+  loadScreen(0);
 
+  /*
   xtouch_firmware_checkOnlineFirmwareUpdate();
   xtouch_screen_setupScreenTimer();
   xtouch_setupGlobalEvents();
   xtouch_pair_check();
   xtouch_mqtt_setup();
   xtouch_chamber_timer_init();
+  */
 }
 
 void loop()
 {
   lv_timer_handler();
   lv_task_handler();
-  xtouch_mqtt_loop();
+  //xtouch_mqtt_loop();
 }
