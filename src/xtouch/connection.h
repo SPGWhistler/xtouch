@@ -12,8 +12,10 @@ bool xtouch_wifi_setup()
         lv_task_handler();
         return false;
     }
-    const char *ssid = wifiConfig["ssid"].as<const char *>();
-    const char *password = wifiConfig["pwd"].as<const char *>();
+    //const char *ssid = wifiConfig["ssid"].as<const char *>();
+    const char *ssid = "SpiralGalaxy";
+    //const char *password = wifiConfig["pwd"].as<const char *>();
+    const char *password = "SuperNova";
     int timeout = wifiConfig.containsKey("timeout") ? wifiConfig["timeout"].as<int>() : 3000;
 
     WiFi.mode(WIFI_STA);

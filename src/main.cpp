@@ -62,8 +62,9 @@ void setup()
   while (!xtouch_wifi_setup())
     ;
 
-  xtouch_firmware_checkOnlineFirmwareUpdate();
+  xtouch_chamber_timer_start();
 
+  xtouch_firmware_checkOnlineFirmwareUpdate();
   xtouch_screen_setupScreenTimer();
   xtouch_setupGlobalEvents();
   xtouch_pair_check();

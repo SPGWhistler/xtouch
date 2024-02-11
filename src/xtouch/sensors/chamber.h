@@ -5,6 +5,10 @@
 #include <DallasTemperature.h>
 
 #define XTOUCH_CHAMBER_TEMP_PIN 22
+#define XTOUCH_LED_BLUE_PIN 17
+#define XTOUCH_LED_RED_PIN 4
+#define XTOUCH_LED_GREEN_PIN 16
+#define XTOUCH_CHAMBER_HEAT_PIN 27
 
 // Setup a temperatureSensorsOneWire instance to communicate with any temperatureSensorsOneWire devices
 OneWire temperatureSensorsOneWire(XTOUCH_CHAMBER_TEMP_PIN);
@@ -18,13 +22,38 @@ void xtouch_chamber_requestTemperatures(lv_timer_t *timer);
 
 void xtouch_chamber_timer_create()
 {
-    xtouch_chambertemp_requestTemperaturesTimer = lv_timer_create(xtouch_chamber_requestTemperatures, 2500, NULL);
+    //xtouch_chambertemp_requestTemperaturesTimer = lv_timer_create(xtouch_chamber_requestTemperatures, 2500, NULL);
+    xtouch_chambertemp_requestTemperaturesTimer = lv_timer_create(xtouch_chamber_requestTemperatures, 500, NULL);
     lv_timer_set_repeat_count(xtouch_chambertemp_requestTemperaturesTimer, 1);
 }
 
 void xtouch_chamber_requestTemperatures(lv_timer_t *timer)
 {
-    int temperatureC = xtouch_chamber_sensors.getTempCByIndex(0) + xTouchConfig.xTouchChamberSensorReadingDiff;
+    float temperatureC = xtouch_chamber_sensors.getTempCByIndex(0) + xTouchConfig.xTouchChamberSensorReadingDiff;
+    float temperatureF = xtouch_chamber_sensors.getTempFByIndex(0) + xTouchConfig.xTouchChamberSensorReadingDiff;
+    ConsoleInfo.println("Temeratures: " + String(temperatureC) + "C" + " " + String(temperatureF) + "F");
+    if (temperatureF >= 70.5) {
+      //Too hot, Heat off, Fan on, Blue
+      digitalWrite(XTOUCH_LED_RED_PIN, HIGH); 
+      digitalWrite(XTOUCH_LED_GREEN_PIN, HIGH);
+      digitalWrite(XTOUCH_LED_BLUE_PIN, LOW);
+      digitalWrite(XTOUCH_CHAMBER_HEAT_PIN, LOW);
+      //Send mqtt to speed up fan
+    } else if (temperatureF >= 70) {
+      //Perfect, do nothing, Green
+      digitalWrite(XTOUCH_LED_RED_PIN, HIGH); 
+      digitalWrite(XTOUCH_LED_GREEN_PIN, LOW);
+      digitalWrite(XTOUCH_LED_BLUE_PIN, HIGH);
+      digitalWrite(XTOUCH_CHAMBER_HEAT_PIN, LOW);
+      //Send mqtt to set fan back to original value
+    } else {
+      //Too cold, heat on, Red
+      digitalWrite(XTOUCH_LED_RED_PIN, LOW); 
+      digitalWrite(XTOUCH_LED_GREEN_PIN, HIGH);
+      digitalWrite(XTOUCH_LED_BLUE_PIN, HIGH);
+      digitalWrite(XTOUCH_CHAMBER_HEAT_PIN, HIGH);
+      //Send mqtt to set fan back to original value
+    }
     bambuStatus.chamber_temper = temperatureC;
     xtouch_mqtt_sendMsg(XTOUCH_ON_CHAMBER_TEMP, temperatureC);
     xtouch_chamber_sensors.requestTemperatures();
@@ -36,6 +65,14 @@ void xtouch_chamber_timer_start()
 {
     if (!xtouch_chamber_started)
     {
+        pinMode(XTOUCH_LED_RED_PIN, OUTPUT);
+        pinMode(XTOUCH_LED_GREEN_PIN, OUTPUT);
+        pinMode(XTOUCH_LED_BLUE_PIN, OUTPUT);
+        pinMode(XTOUCH_CHAMBER_HEAT_PIN, OUTPUT);
+        digitalWrite(XTOUCH_LED_RED_PIN, HIGH);
+        digitalWrite(XTOUCH_LED_GREEN_PIN, HIGH);
+        digitalWrite(XTOUCH_LED_BLUE_PIN, HIGH);
+        digitalWrite(XTOUCH_CHAMBER_HEAT_PIN, LOW);
         xtouch_chamber_sensors.begin();
         xtouch_chamber_sensors.setWaitForConversion(false);
         xtouch_chamber_started = true;
