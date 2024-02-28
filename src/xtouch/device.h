@@ -179,8 +179,11 @@ void xtouch_device_onNozzleTargetCommand(lv_msg_t *m)
 void xtouch_device_onChamberTargetCommand(lv_msg_t *m)
 {
     bambuStatus.chamber_target_temper = controlMode.target_chamber_temper;
-    //TODO: Get gcode for chamber temp?
-    //xtouch_device_gcode_line("M104 S" + String(controlMode.target_chamber_temper) + "\n");
+    //TODO: Prob dont need to send this, but we should monitor for it.
+    //M141 S sets chamber target temp and does not wait
+    //M191 S sets chamber target temp and waits for it to be reached (if heating only)
+    //M191 R sets chamber target temp and wait for it to be reached
+    //xtouch_device_gcode_line("M141 S" + String(controlMode.target_chamber_temper) + "\n");
     //xtouch_device_pushall();
 }
 

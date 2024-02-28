@@ -276,13 +276,21 @@ void xtouch_mqtt_processPushStatus(JsonDocument &incomingJson)
             xtouch_mqtt_sendMsg(XTOUCH_ON_NOZZLE_TARGET_TEMP, bambuStatus.nozzle_target_temper);
         }
 
-        /*
+        /* TODO: Disable this when using internal thermomter probably
         if (incomingJson["print"].containsKey("chamber_temper"))
         {
             bambuStatus.chamber_temper = incomingJson["print"]["chamber_temper"].as<double>();
             xtouch_mqtt_sendMsg(XTOUCH_ON_CHAMBER_TEMP, bambuStatus.chamber_temper);
         }
         */
+
+        //TODO: No idea if this works
+        //In theory, when a M191 or M141 command is sent, the printer ought to send this message
+        if (incomingJson["print"].containsKey("chamber_target_temper"))
+        {
+            bambuStatus.chamber_target_temper = incomingJson["print"]["chamber_target_temper"].as<double>();
+            xtouch_mqtt_sendMsg(XTOUCH_ON_CHAMBER_TARGET_TEMP, bambuStatus.chamber_target_temper);
+        }
 
         // link_th
         // link_ams
@@ -864,7 +872,7 @@ void xtouch_mqtt_loop()
 {
     if (!xtouch_pubSubClient.connected())
     {
-        Serial.println("π-----DISCONNECTED-----");
+        Serial.println("------DISCONNECTED-----");
         xtouch_mqtt_connect();
         return;
     }

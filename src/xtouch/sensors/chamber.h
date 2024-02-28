@@ -33,7 +33,7 @@ void xtouch_chamber_requestTemperatures(lv_timer_t *timer)
     float temperatureF = xtouch_chamber_sensors.getTempFByIndex(0) + xTouchConfig.xTouchChamberSensorReadingDiff;
     ConsoleInfo.println("Temeratures: " + String(temperatureC) + "C" + " " + String(temperatureF) + "F");
     bambuStatus.chamber_temper = temperatureC;
-    if (temperatureF >= 70.5) {
+    if (temperatureF >= 75.5) {
       //Too hot, Heat off, Fan on, Blue
       digitalWrite(XTOUCH_LED_RED_PIN, HIGH); 
       digitalWrite(XTOUCH_LED_GREEN_PIN, HIGH);
@@ -42,7 +42,7 @@ void xtouch_chamber_requestTemperatures(lv_timer_t *timer)
       //Send mqtt to speed up fan
       xtouch_mqtt_sendMsg(XTOUCH_ON_CHAMBER_TEMP, temperatureC);
       xtouch_mqtt_sendMsg(XTOUCH_ON_CHAMBER_TARGET_TEMP, 0);
-    } else if (temperatureF >= 70) {
+    } else if (temperatureF >= 74.5) {
       //Perfect, do nothing, Green
       digitalWrite(XTOUCH_LED_RED_PIN, HIGH); 
       digitalWrite(XTOUCH_LED_GREEN_PIN, LOW);
